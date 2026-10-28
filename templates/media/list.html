@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Reference Media Library — CreatorSpark{% endblock %}
+
+{% block content %}
+<div class="container studio-page-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <span class="badge badge-primary">Visual Asset Library</span>
+      <h1 class="page-title">Reference Media Library</h1>
+      <p class="page-desc">
+        Store visual references, moodboards, and cover drafts for your planned Instagram posts.
+      </p>
+    </div>
+  </div>
+
+  <!-- Storage Persistence Notice Banner -->
+  <div class="planner-notice-banner" style="margin-bottom: 2rem;">
+    <div style="display: flex; gap: 0.75rem; align-items: flex-start;">
+      <span style="font-size: 1.25rem;">ℹ️</span>
+      <div style="font-size: 0.875rem; color: var(--color-slate-700); line-height: 1.5;">
+        <strong>Storage Architecture Note:</strong> In local development, reference media files are securely stored inside your local <code>/media/</code> directory. In production environments (such as Render), web containers use ephemeral disk storage; persistent long-term asset storage is typically backed by persistent disks or an object store (e.g. S3/Cloudinary).
+      </div>
+    </div>
+  </div>
+
+  <div class="media-page-layout">
+    <!-- Upload Card -->
+    <div class="media-upload-card">
+      <h2 class="card-section-title">Upload Reference Visual</h2>
+      <p style="font-size: 0.8125rem; color: var(--color-slate-500); margin-bottom: 1.25rem;">
+        Supported formats: JPEG, PNG, WEBP, GIF. Max file size: 5 MB.
+      </p>
+
+      <form method="post" action="{% url 'media_library' %}" enctype="multipart/form-data" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="form-alert-error">
+            {% for err in form.non_field_errors %}<p>{{ err }}</p>{% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="form-group">
+          <label for="{{ form.title.id_for_label }}" class="form-label">Title / Image Label</label>
+          {{ form.title }}
+          {% if form.title.errors %}<div class="field-error">{{ form.title.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.image.id_for_label }}" class="form-label">Choose Image File</label>
+          {{ form.image }}
+          {% if form.image.errors %}<div class="field-error">{{ form.image.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.idea.id_for_label }}" class="form-label">Associate with Saved Idea (Optional)</label>
+          {{ form.idea }}
+          {% if form.idea.errors %}<div class="field-error">{{ form.idea.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.caption_notes.id_for_label }}" class="form-label">Visual Inspiration Notes</label>
+          {{ form.caption_notes }}
+          {% if form.caption_notes.errors %}<div class="field-error">{{ form.caption_notes.errors.0 }}</div>{% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" style="width: 100%; margin-top: 0.5rem;">
+          Upload Reference Image
+        </button>
+      </form>
+    </div>
+
+    <!-- Media Grid Column -->
+    <div class="media-gallery-column">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <h2 class="card-section-title" style="margin: 0;">Your Visual References ({{ media_items|length }})</h2>
+      </div>
+
+      {% if media_items %}
+        <div class="media-cards-grid">
+          {% for item in media_items %}
+            <div class="media-card-item">
+              <div class="media-image-preview-wrap">
+                <img src="{{ item.image.url }}" alt="{{ item.title }}" loading="lazy" class="media-image-tag">
+              </div>
+              <div class="media-card-body">
+                <h3 class="media-card-title">{{ item.title }}</h3>
+                <div class="media-card-meta">
+                  <span>{{ item.formatted_size }}</span> &bull;
+                  <span>{{ item.created_at|date:"M d, Y" }}</span>
+                </div>
+
+                {% if item.idea %}
+                  <div class="media-card-linked-idea">
+                    <span style="color: var(--color-slate-500);">Idea:</span>
+                    <a href="{% url 'idea_detail' item.idea.id %}">{{ item.idea.title|truncatechars:28 }}</a>
+                  </div>
+                {% endif %}
+
+                {% if item.caption_notes %}
+                  <p class="media-card-notes">{{ item.caption_notes|truncatechars:90 }}</p>
+                {% endif %}
+
+                <div class="media-card-actions">
+                  <a href="{{ item.image.url }}" target="_blank" rel="noopener" class="btn btn-secondary btn-sm">
+                    View Full
+                  </a>
+                  <a href="{% url 'media_delete' item.id %}" class="btn btn-secondary btn-sm" style="color: var(--color-danger);">
+                    Delete
+                  </a>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state-box">
+          <div class="empty-state-icon">🖼️</div>
+          <h3 class="empty-state-title">No reference images uploaded</h3>
+          <p class="empty-state-text">
+            Upload moodboards, cover concepts, and visual inspiration using the form on the left.
+          </p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

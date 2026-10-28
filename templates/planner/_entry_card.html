@@ -1,0 +1,44 @@
+<div class="planner-card">
+  <div class="planner-card-top">
+    <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+      <span class="badge badge-accent badge-sm">{{ entry.get_content_format_display }}</span>
+      <span class="badge badge-primary badge-sm">{{ entry.get_status_display }}</span>
+    </div>
+    <div class="planner-card-actions">
+      <a href="{% url 'planner_edit' entry.id %}" class="btn btn-secondary btn-sm" title="Edit Schedule">
+        ✏️ Edit
+      </a>
+      <a href="{% url 'planner_delete' entry.id %}" class="btn btn-secondary btn-sm" style="color: var(--color-danger);" title="Delete Schedule">
+        🗑️
+      </a>
+    </div>
+  </div>
+
+  <h3 class="planner-card-title">
+    <a href="{% url 'planner_edit' entry.id %}">{{ entry.title }}</a>
+  </h3>
+
+  <div class="planner-card-datetime">
+    {% if entry.planned_date %}
+      <span class="datetime-pill">
+        📅 {{ entry.planned_date|date:"l, M d, Y" }}
+        {% if entry.planned_time %} at {{ entry.planned_time|time:"h:i A" }}{% endif %}
+      </span>
+    {% else %}
+      <span class="datetime-pill unscheduled">📅 Unscheduled</span>
+    {% endif %}
+  </div>
+
+  {% if entry.idea %}
+    <div class="planner-card-linked-idea">
+      <span class="linked-label">Linked Idea:</span>
+      <a href="{% url 'idea_detail' entry.idea.id %}" class="linked-link">{{ entry.idea.title|truncatechars:45 }}</a>
+    </div>
+  {% endif %}
+
+  {% if entry.notes %}
+    <p class="planner-card-notes">
+      {{ entry.notes|truncatechars:110 }}
+    </p>
+  {% endif %}
+</div>

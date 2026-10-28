@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Edit Idea: {{ idea.title }} — CreatorSpark{% endblock %}
+
+{% block content %}
+<div class="container studio-page-container">
+  <div class="page-header">
+    <div>
+      <a href="{% url 'idea_detail' idea.id %}" class="back-link">&larr; Cancel and return to idea</a>
+      <h1 class="page-title" style="margin-top: 0.5rem;">Edit Content Idea</h1>
+      <p class="page-desc">
+        Refine your hooks, sequence steps, caption body, and hashtag strategy.
+      </p>
+    </div>
+  </div>
+
+  <div class="card" style="max-width: 860px; margin: 0 auto; padding: 2rem; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+    <form method="post" action="{% url 'idea_edit' idea.id %}" novalidate>
+      {% csrf_token %}
+
+      {% if form.non_field_errors %}
+        <div class="form-alert-error">
+          {% for err in form.non_field_errors %}<p>{{ err }}</p>{% endfor %}
+        </div>
+      {% endif %}
+
+      <div class="form-group">
+        <label for="{{ form.title.id_for_label }}" class="form-label">Idea Title</label>
+        {{ form.title }}
+        {% if form.title.errors %}<div class="field-error">{{ form.title.errors.0 }}</div>{% endif %}
+      </div>
+
+      <div class="generator-grid-3">
+        <div class="form-group">
+          <label for="{{ form.content_format.id_for_label }}" class="form-label">Format</label>
+          {{ form.content_format }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.niche.id_for_label }}" class="form-label">Niche</label>
+          {{ form.niche }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.audience.id_for_label }}" class="form-label">Target Audience</label>
+          {{ form.audience }}
+        </div>
+      </div>
+
+      <div class="generator-grid-2" style="margin-top: 0.5rem;">
+        <div class="form-group">
+          <label for="{{ form.objective.id_for_label }}" class="form-label">Objective / Goal</label>
+          {{ form.objective }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.tone.id_for_label }}" class="form-label">Delivery Tone</label>
+          {{ form.tone }}
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top: 0.5rem;">
+        <label for="{{ form.hook.id_for_label }}" class="form-label">Opening Hook (First 3 Seconds)</label>
+        {{ form.hook }}
+        <small class="form-help-text">{{ form.hook.help_text }}</small>
+        {% if form.hook.errors %}<div class="field-error">{{ form.hook.errors.0 }}</div>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.outline_text.id_for_label }}" class="form-label">Content Sequence / Outline Steps</label>
+        {{ form.outline_text }}
+        <small class="form-help-text">{{ form.outline_text.help_text }}</small>
+        {% if form.outline_text.errors %}<div class="field-error">{{ form.outline_text.errors.0 }}</div>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.caption_draft.id_for_label }}" class="form-label">Caption Draft</label>
+        {{ form.caption_draft }}
+        <small class="form-help-text">{{ form.caption_draft.help_text }}</small>
+        {% if form.caption_draft.errors %}<div class="field-error">{{ form.caption_draft.errors.0 }}</div>{% endif %}
+      </div>
+
+      <div class="form-group">
+        <label for="{{ form.hashtags_text.id_for_label }}" class="form-label">Hashtags</label>
+        {{ form.hashtags_text }}
+        <small class="form-help-text">{{ form.hashtags_text.help_text }}</small>
+        {% if form.hashtags_text.errors %}<div class="field-error">{{ form.hashtags_text.errors.0 }}</div>{% endif %}
+      </div>
+
+      <div class="generator-grid-2">
+        <div class="form-group">
+          <label for="{{ form.call_to_action.id_for_label }}" class="form-label">Suggested Call-To-Action (CTA)</label>
+          {{ form.call_to_action }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.estimated_difficulty.id_for_label }}" class="form-label">Production Difficulty</label>
+          {{ form.estimated_difficulty }}
+        </div>
+      </div>
+
+      <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem;">
+        {{ form.is_favorite }}
+        <label for="{{ form.is_favorite.id_for_label }}" class="form-label" style="margin: 0; cursor: pointer;">
+          Mark as Favorite Idea
+        </label>
+      </div>
+
+      <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+        <button type="submit" class="btn btn-primary">
+          Save Changes
+        </button>
+        <a href="{% url 'idea_detail' idea.id %}" class="btn btn-secondary">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

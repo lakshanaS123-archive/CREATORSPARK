@@ -1,0 +1,59 @@
+{% load static %}
+<footer class="site-footer" role="contentinfo">
+  <div class="container">
+    <div class="footer-grid">
+      <!-- Brand Summary -->
+      <div>
+        <a href="{% url 'landing' %}" class="brand-link">
+          <img src="{% static 'img/logo.svg' %}" alt="CreatorSpark" width="28" height="28">
+          <span>Creator<span class="brand-spark">Spark</span></span>
+        </a>
+        <p class="footer-brand-desc">
+          A focused, transparent content idea generation and planning studio designed for Instagram creators and social media influencers.
+        </p>
+      </div>
+
+      <!-- Planned Modules -->
+      <div>
+        <h4 class="footer-heading">Platform Architecture</h4>
+        <ul class="footer-links">
+          <li><a href="{% url 'landing' %}#live-preview" class="footer-link">Rule-Based Generator</a></li>
+          <li><a href="{% url 'landing' %}#features" class="footer-link">Instagram Reel & Carousel Formats</a></li>
+          <li><a href="{% url 'about' %}" class="footer-link">Audio Speech Mode (TTS)</a></li>
+          <li><a href="{% url 'about' %}" class="footer-link">Per-User Data Isolation</a></li>
+        </ul>
+      </div>
+
+      <!-- Roadmap & Stages -->
+      <div>
+        <h4 class="footer-heading">Development Stages</h4>
+        <ul class="footer-links">
+          <li><span class="footer-link" style="color: var(--color-primary); font-weight: 600;">Stage 1: Foundation (Current)</span></li>
+          <li><span class="footer-link">Stage 2: Auth & Profiles</span></li>
+          <li><span class="footer-link">Stage 3: Full Idea Generator</span></li>
+          <li><span class="footer-link">Stage 4: Planner & Media</span></li>
+          <li><span class="footer-link">Stage 5: Polish & Deployment</span></li>
+        </ul>
+      </div>
+
+      <!-- Tech Stack & Health -->
+      <div>
+        <h4 class="footer-heading">System & Health</h4>
+        <ul class="footer-links">
+          <li><a href="{% url 'health_check' %}" class="footer-link" target="_blank" rel="noopener">System Health Check JSON</a></li>
+          <li><a href="{% url 'about' %}" class="footer-link">Stack & Philosophy</a></li>
+          <li><span class="footer-link">Python 3.13 & Django 6.1</span></li>
+          <li><span class="footer-link">SQLite (Dev) / PostgreSQL (Prod)</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bottom Bar -->
+    <div class="footer-bottom">
+      <p>&copy; 2026 CreatorSpark. Built with Django, HTML, CSS & Vanilla JS. Zero paid API credentials required.</p>
+      <div style="display: flex; gap: 1rem; align-items: center;">
+        <span class="badge badge-outline">Stage 1: Foundation Active</span>
+      </div>
+    </div>
+  </div>
+</footer>

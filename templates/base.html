@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="{% block meta_description %}CreatorSpark is a content idea generation and planning studio for Instagram influencers and social media creators.{% endblock %}">
+  <title>{% block title %}{{ page_title|default:"CreatorSpark — Content Idea Generation & Planning Studio" }}{% endblock %}</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="{% static 'img/favicon.svg' %}">
+
+  <!-- Core Stylesheet -->
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <!-- Global Navigation Header -->
+  {% include 'includes/navbar.html' %}
+
+  <!-- Flash Notifications / Alerts -->
+  {% include 'includes/messages.html' %}
+
+  <!-- Main View Container -->
+  <main class="main-content" id="mainContent">
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  <!-- Global Footer -->
+  {% include 'includes/footer.html' %}
+
+  <!-- Client-side Scripts -->
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

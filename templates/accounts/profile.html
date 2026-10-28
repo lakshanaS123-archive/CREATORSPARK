@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Creator Profile & Preferences — CreatorSpark{% endblock %}
+
+{% block content %}
+<div class="container studio-page-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <span class="badge badge-primary">Creator Preferences</span>
+      <h1 class="page-title">Profile & Studio Defaults</h1>
+      <p class="page-desc">
+        Set your default niche, audience, and Instagram handle so your idea generator and studio are always personalized.
+      </p>
+    </div>
+    <div>
+      <a href="{% url 'generator' %}" class="btn btn-primary">
+        Go to Idea Generator &rarr;
+      </a>
+    </div>
+  </div>
+
+  <div class="profile-layout-grid">
+    <!-- Profile Form Column -->
+    <div class="profile-form-card">
+      <h2 class="card-section-title">Edit Creator Details</h2>
+      <form method="post" action="{% url 'profile' %}" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="form-alert-error">
+            {% for err in form.non_field_errors %}<p>{{ err }}</p>{% endfor %}
+          </div>
+        {% endif %}
+
+        <div class="form-group">
+          <label for="{{ form.instagram_handle.id_for_label }}" class="form-label">Instagram Handle</label>
+          {{ form.instagram_handle }}
+          <small class="form-help-text">{{ form.instagram_handle.help_text }}</small>
+          {% if form.instagram_handle.errors %}
+            <div class="field-error">{{ form.instagram_handle.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.primary_niche.id_for_label }}" class="form-label">Primary Niche</label>
+          {{ form.primary_niche }}
+          {% if form.primary_niche.errors %}
+            <div class="field-error">{{ form.primary_niche.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.target_audience.id_for_label }}" class="form-label">Default Target Audience</label>
+          {{ form.target_audience }}
+          {% if form.target_audience.errors %}
+            <div class="field-error">{{ form.target_audience.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.bio_notes.id_for_label }}" class="form-label">Creator Bio / Brand Notes</label>
+          {{ form.bio_notes }}
+          <small class="form-help-text">{{ form.bio_notes.help_text }}</small>
+          {% if form.bio_notes.errors %}
+            <div class="field-error">{{ form.bio_notes.errors.0 }}</div>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+          Save Profile Preferences
+        </button>
+      </form>
+    </div>
+
+    <!-- Summary / Status Sidebar -->
+    <div class="profile-summary-card">
+      <div class="profile-avatar-banner">
+        <div class="profile-large-avatar">
+          {{ user.username|make_list|first|upper }}
+        </div>
+        <div>
+          <h3 class="profile-username">{{ user.username }}</h3>
+          <div class="profile-handle">{{ profile.instagram_handle|default:"No handle set" }}</div>
+        </div>
+      </div>
+
+      <div class="profile-meta-list">
+        <div class="meta-row">
+          <span class="meta-label">Account Email</span>
+          <span class="meta-val">{{ user.email }}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">Primary Niche</span>
+          <span class="badge badge-primary">{{ profile.get_primary_niche_display }}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">Target Audience</span>
+          <span class="badge badge-outline">{{ profile.get_target_audience_display }}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">Member Since</span>
+          <span class="meta-val">{{ user.date_joined|date:"M d, Y" }}</span>
+        </div>
+      </div>
+
+      <div class="profile-tips-box">
+        <h4>💡 Creator Tip</h4>
+        <p>
+          Your generator will automatically prefill with <strong>{{ profile.get_primary_niche_display }}</strong> and <strong>{{ profile.get_target_audience_display }}</strong> to save you time on every brainstorming session.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Confirm Delete Idea — CreatorSpark{% endblock %}
+
+{% block content %}
+<div class="container studio-page-container">
+  <div style="max-width: 540px; margin: 3rem auto; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 2.5rem; box-shadow: var(--shadow-md); text-align: center;">
+    <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+    <span class="badge badge-accent">Destructive Action</span>
+    <h1 style="font-size: 1.5rem; font-weight: 700; color: var(--color-slate-900); margin: 0.75rem 0;">
+      Delete Content Idea?
+    </h1>
+    <p style="color: var(--color-slate-600); font-size: 0.9375rem; margin-bottom: 1.5rem; line-height: 1.5;">
+      Are you sure you want to permanently delete <strong>"{{ idea.title }}"</strong>? This cannot be undone. Any linked planner entries will remain but will no longer reference this idea.
+    </p>
+
+    <form method="post" action="{% url 'idea_delete' idea.id %}">
+      {% csrf_token %}
+      <div style="display: flex; gap: 1rem; justify-content: center;">
+        <a href="{% url 'idea_detail' idea.id %}" class="btn btn-secondary">
+          Cancel, Keep Idea
+        </a>
+        <button type="submit" class="btn btn-primary" style="background: var(--color-danger); border-color: var(--color-danger);">
+          Yes, Delete Idea
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

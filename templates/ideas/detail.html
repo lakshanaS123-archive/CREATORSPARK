@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ idea.title }} — CreatorSpark{% endblock %}
+
+{% block content %}
+<div class="container studio-page-container">
+  <!-- Top Navigation & Actions Bar -->
+  <div class="page-header">
+    <div>
+      <a href="{% url 'saved_ideas_list' %}" class="back-link">&larr; Back to Saved Ideas</a>
+      <div style="display: flex; gap: 0.5rem; align-items: center; margin-top: 0.5rem; flex-wrap: wrap;">
+        <span class="badge badge-accent">{{ idea.get_content_format_display }}</span>
+        <span class="badge badge-primary">{{ idea.niche|title }}</span>
+        <span class="badge badge-outline">{{ idea.audience|title }}</span>
+        <span class="badge badge-outline">{{ idea.estimated_difficulty }}</span>
+      </div>
+      <h1 class="page-title" style="margin-top: 0.5rem;">{{ idea.title }}</h1>
+    </div>
+
+    <!-- Action Toolbar -->
+    <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+      <!-- Favorite Toggle -->
+      <form method="post" action="{% url 'idea_toggle_favorite' idea.id %}" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-secondary btn-sm" title="Toggle Favorite">
+          {% if idea.is_favorite %}★ Favorited{% else %}☆ Add to Favorites{% endif %}
+        </button>
+      </form>
+      <a href="{% url 'planner_create' %}?idea_id={{ idea.id }}" class="btn btn-secondary btn-sm">
+        📅 Add to Planner
+      </a>
+      <a href="{% url 'idea_edit' idea.id %}" class="btn btn-secondary btn-sm">
+        ✏️ Edit
+      </a>
+      <a href="{% url 'idea_delete' idea.id %}" class="btn btn-secondary btn-sm" style="color: var(--color-danger);">
+        🗑️ Delete
+      </a>
+    </div>
+  </div>
+
+  <!-- Audio Player Controller Bar for this idea -->
+  <div class="audio-controller-bar" id="audioGlobalBar" role="region" aria-label="Web Speech Audio Player">
+    <div class="audio-bar-left">
+      <span class="audio-pulse-indicator" id="audioPulseIndicator"></span>
+      <span class="audio-status-label" id="audioStatusText">Speech Synthesis Ready</span>
+    </div>
+    <div class="audio-controls-wrap">
+      <select id="audioVoiceSelect" class="audio-voice-select" aria-label="Select Voice">
+        <option value="">Default Browser Voice</option>
+      </select>
+      <button type="button" class="btn btn-primary btn-sm audio-play-btn" data-speak-target="detailHookContent" title="Listen to Hook">
+        🔊 Listen Hook
+      </button>
+      <button type="button" class="btn btn-secondary btn-sm audio-play-btn" data-speak-target="detailCaptionContent" title="Listen to Full Caption">
+        🔊 Listen Caption
+      </button>
+      <button type="button" class="btn btn-secondary btn-sm" id="audioPauseBtn" title="Pause Speech" disabled>
+        Pause
+      </button>
+      <button type="button" class="btn btn-secondary btn-sm" id="audioResumeBtn" title="Resume Speech" disabled>
+        Resume
+      </button>
+      <button type="button" class="btn btn-secondary btn-sm" id="audioStopBtn" title="Stop Speech" disabled>
+        Stop
+      </button>
+    </div>
+  </div>
+
+  <!-- 2-Column Detail Layout -->
+  <div class="idea-detail-grid">
+    <!-- Left Column: Core Idea, Hook & Outline -->
+    <div class="detail-main-col">
+      <!-- Hook Highlight -->
+      <div class="hook-box-highlight">
+        <div class="hook-header">
+          <span class="hook-box-title">Opening Hook (First 3 Seconds)</span>
+          <button type="button" class="btn btn-secondary btn-sm copy-btn" data-copy-target="detailHookContent">
+            Copy Hook
+          </button>
+        </div>
+        <p class="hook-box-content" id="detailHookContent">{{ idea.hook }}</p>
+      </div>
+
+      <!-- Suggested Sequence / Outline -->
+      <div class="detail-section-card">
+        <div class="section-card-header">
+          <h2 class="card-section-title">Suggested Content Sequence / Outline</h2>
+          <button type="button" class="btn btn-secondary btn-sm copy-btn" data-copy-target="detailOutlineContent">
+            Copy Outline
+          </button>
+        </div>
+        <div id="detailOutlineContent">
+          {% if idea.outline_list %}
+            <ol class="outline-ordered-list">
+              {% for step in idea.outline_list %}
+                <li>{{ step }}</li>
+              {% endfor %}
+            </ol>
+          {% else %}
+            <p class="text-muted">No specific sequence steps drafted yet.</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Caption Draft -->
+      <div class="detail-section-card">
+        <div class="section-card-header">
+          <h2 class="card-section-title">Caption Draft</h2>
+          <button type="button" class="btn btn-secondary btn-sm copy-btn" data-copy-target="detailCaptionContent">
+            Copy Caption
+          </button>
+        </div>
+        <div class="caption-draft-box" id="detailCaptionContent">
+          {{ idea.caption_draft|linebreaksbr }}
+        </div>
+      </div>
+
+      <!-- Hashtags -->
+      <div class="detail-section-card">
+        <div class="section-card-header">
+          <h2 class="card-section-title">Hashtags</h2>
+          <button type="button" class="btn btn-secondary btn-sm copy-btn" data-copy-target="detailHashtagsContent">
+            Copy Hashtags
+          </button>
+        </div>
+        <div class="hashtag-pill-container" id="detailHashtagsContent">
+          {% for tag in idea.hashtags_list %}
+            <span class="hashtag-pill">{{ tag }}</span>
+          {% empty %}
+            <p class="text-muted">No hashtags attached.</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Sidebar Column: Metadata, Linked Schedule & Media -->
+    <div class="detail-side-col">
+      <!-- Strategy Info Box -->
+      <div class="detail-side-card">
+        <h3 class="side-card-title">Strategy Overview</h3>
+        <div class="meta-row">
+          <span class="meta-label">Format</span>
+          <span class="meta-val">{{ idea.get_content_format_display }}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">Primary Goal</span>
+          <span class="meta-val">{{ idea.get_objective_display }}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">Tone</span>
+          <span class="meta-val">{{ idea.get_tone_display }}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">Difficulty</span>
+          <span class="meta-val">{{ idea.estimated_difficulty }}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">Call to Action</span>
+          <span class="meta-val" style="color: var(--color-primary); font-weight: 500;">
+            {{ idea.call_to_action|default:"None set" }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Linked Planner Schedule Items -->
+      <div class="detail-side-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <h3 class="side-card-title" style="margin: 0;">Planned Schedule</h3>
+          <a href="{% url 'planner_create' %}?idea_id={{ idea.id }}" class="btn btn-secondary btn-sm">+ Plan</a>
+        </div>
+        {% if linked_planner %}
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            {% for entry in linked_planner %}
+              <div style="padding: 0.75rem; background: var(--color-slate-50); border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+                <div style="display: flex; justify-content: space-between;">
+                  <span class="badge badge-sm badge-primary">{{ entry.get_status_display }}</span>
+                  <span style="font-size: 0.75rem; color: var(--color-slate-500);">{{ entry.planned_date|default:"TBD" }}</span>
+                </div>
+                <div style="margin-top: 0.25rem; font-weight: 600; font-size: 0.875rem;">
+                  <a href="{% url 'planner_edit' entry.id %}">{{ entry.title }}</a>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p style="font-size: 0.8125rem; color: var(--color-slate-500);">
+            This idea is not scheduled on your planner yet.
+          </p>
+        {% endif %}
+      </div>
+
+      <!-- Linked Reference Media Items -->
+      <div class="detail-side-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+          <h3 class="side-card-title" style="margin: 0;">Reference Media</h3>
+          <a href="{% url 'media_library' %}" class="btn btn-secondary btn-sm">+ Upload</a>
+        </div>
+        {% if linked_media %}
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
+            {% for item in linked_media %}
+              <div style="border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border-subtle);">
+                <img src="{{ item.image.url }}" alt="{{ item.title }}" style="width: 100%; height: 80px; object-fit: cover;">
+                <div style="padding: 0.25rem 0.5rem; font-size: 0.75rem; font-weight: 500;" class="truncate">{{ item.title }}</div>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p style="font-size: 0.8125rem; color: var(--color-slate-500);">
+            No reference photos attached to this concept.
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

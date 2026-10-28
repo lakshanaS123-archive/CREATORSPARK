@@ -1,0 +1,10 @@
+# CreatorSpark Dependencies
+# Only genuinely required packages for local development and production deployment.
+
+Django>=6.0.0,<6.2.0
+dj-database-url>=3.0.0
+psycopg2-binary>=2.9.0
+whitenoise>=6.8.0
+gunicorn>=23.0.0
+Pillow>=11.0.0
+python-dotenv>=1.0.0

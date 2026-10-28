@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40" fill="none">
+  <defs>
+    <linearGradient id="sparkGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1" />
+      <stop offset="50%" stop-color="#8b5cf6" />
+      <stop offset="100%" stop-color="#f43f5e" />
+    </linearGradient>
+    <linearGradient id="glowFilter" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.2" />
+    </linearGradient>
+  </defs>
+  <rect width="40" height="40" rx="10" fill="url(#glowFilter)" stroke="url(#sparkGradient)" stroke-width="1.5" />
+  <!-- Spark Icon -->
+  <path d="M21 7L13 22H20L18 33L28 17H21L23 7H21Z" fill="url(#sparkGradient)" stroke="#ffffff" stroke-width="0.75" stroke-linejoin="round" />
+</svg>

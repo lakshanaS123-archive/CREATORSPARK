@@ -1,0 +1,80 @@
+{% load static %}
+<header class="site-header" role="banner">
+  <div class="container navbar">
+    <!-- Brand Logo -->
+    <a href="{% if user.is_authenticated %}{% url 'dashboard' %}{% else %}{% url 'landing' %}{% endif %}" class="brand-link" aria-label="CreatorSpark Home">
+      <img src="{% static 'img/logo.svg' %}" alt="CreatorSpark Logo" width="36" height="36">
+      <span>Creator<span class="brand-spark">Spark</span></span>
+    </a>
+
+    <!-- Navigation Menu (Desktop) -->
+    <ul class="nav-menu" id="navMenu" role="navigation" aria-label="Main Navigation">
+      {% if user.is_authenticated %}
+        <li>
+          <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+            Dashboard
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'generator' %}" class="nav-link {% if request.resolver_match.url_name == 'generator' %}active{% endif %}">
+            Idea Generator
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'saved_ideas_list' %}" class="nav-link {% if 'ideas' in request.path %}active{% endif %}">
+            Saved Ideas
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'planner_list' %}" class="nav-link {% if 'planner' in request.path %}active{% endif %}">
+            Planner
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'caption_studio' %}" class="nav-link {% if request.resolver_match.url_name == 'caption_studio' %}active{% endif %}">
+            Studio
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'media_library' %}" class="nav-link {% if 'media' in request.path %}active{% endif %}">
+            Media
+          </a>
+        </li>
+      {% else %}
+        <li><a href="{% url 'landing' %}#features" class="nav-link">Features</a></li>
+        <li><a href="{% url 'landing' %}#live-preview" class="nav-link">Live Generator</a></li>
+        <li><a href="{% url 'landing' %}#roadmap" class="nav-link">5-Stage Roadmap</a></li>
+        <li><a href="{% url 'about' %}" class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}">About</a></li>
+        <li><a href="{% url 'health_check' %}" class="nav-link" target="_blank" rel="noopener">Health Check</a></li>
+      {% endif %}
+    </ul>
+
+    <!-- Header Actions -->
+    <div class="nav-actions">
+      {% if user.is_authenticated %}
+        <a href="{% url 'profile' %}" class="user-profile-badge" title="Profile & Creator Settings">
+          <span class="user-avatar-initial">{{ user.username|make_list|first|upper }}</span>
+          <span class="user-handle-text">@{{ user.username }}</span>
+        </a>
+        <form method="post" action="{% url 'logout' %}" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-secondary btn-sm" title="Sign out of CreatorSpark">
+            Sign Out
+          </button>
+        </form>
+      {% else %}
+        <a href="{% url 'login' %}" class="btn btn-secondary btn-sm">Sign In</a>
+        <a href="{% url 'register' %}" class="btn btn-primary btn-sm">Join Free</a>
+      {% endif %}
+    </div>
+
+    <!-- Mobile Hamburger Toggle Button -->
+    <button class="nav-toggle" id="navToggleBtn" type="button" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="navMenu">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+</header>

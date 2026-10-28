@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Caption & Hashtag Studio — CreatorSpark{% endblock %}
+
+{% block content %}
+<div class="container studio-page-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <span class="badge badge-primary">Copywriting & Tag Optimizer</span>
+      <h1 class="page-title">Caption & Hashtag Studio</h1>
+      <p class="page-desc">
+        Draft high-retention Instagram captions, explore tiered hashtag strategies, and refine your copy before posting.
+      </p>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="{% url 'saved_ideas_list' %}" class="btn btn-secondary">
+        View Saved Ideas &rarr;
+      </a>
+    </div>
+  </div>
+
+  <!-- Studio Input Form Card -->
+  <div class="generator-card" style="margin-bottom: 2rem;">
+    <form method="post" action="{% url 'caption_studio' %}">
+      {% csrf_token %}
+
+      <div class="form-group">
+        <label for="{{ form.topic.id_for_label }}" class="form-label">Post Topic or Core Message</label>
+        {{ form.topic }}
+      </div>
+
+      <div class="generator-grid-4" style="margin-top: 1rem;">
+        <div class="form-group">
+          <label for="{{ form.niche.id_for_label }}" class="form-label">Niche</label>
+          {{ form.niche }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.audience.id_for_label }}" class="form-label">Audience</label>
+          {{ form.audience }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.tone.id_for_label }}" class="form-label">Tone</label>
+          {{ form.tone }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.style.id_for_label }}" class="form-label">Caption Style</label>
+          {{ form.style }}
+        </div>
+      </div>
+
+      <div class="generator-actions-strip" style="margin-top: 1rem;">
+        <div style="font-size: 0.8125rem; color: var(--color-slate-500);">
+          💡 Generates 3 distinct caption variations (Story, Listicle, Conversational) & curated hashtags.
+        </div>
+        <button type="submit" class="btn btn-primary">
+          Draft Captions & Hashtags
+        </button>
+      </div>
+    </form>
+  </div>
+
+  {% if studio_results %}
+    <!-- Interactive Workspace Grid -->
+    <div class="studio-workspace-grid">
+      <!-- Left: Interactive Caption Editor -->
+      <div class="studio-editor-card">
+        <div class="studio-editor-header">
+          <div class="style-tabs-group">
+            <button type="button" class="btn btn-secondary btn-sm style-tab-btn active" data-style-target="storyCaptionText">
+              📖 Storytelling
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm style-tab-btn" data-style-target="listCaptionText">
+              📋 Listicle / Cheat Sheet
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm style-tab-btn" data-style-target="convoCaptionText">
+              💬 Conversational Debate
+            </button>
+          </div>
+          <div class="editor-stats">
+            <span id="charCountDisplay">0</span> chars
+          </div>
+        </div>
+
+        <!-- Hidden raw texts for tab switching -->
+        <div style="display: none;">
+          <textarea id="storyCaptionText">{{ studio_results.story_caption }}</textarea>
+          <textarea id="listCaptionText">{{ studio_results.list_caption }}</textarea>
+          <textarea id="convoCaptionText">{{ studio_results.convo_caption }}</textarea>
+        </div>
+
+        <div class="form-group" style="margin-top: 1rem;">
+          <label for="studioCaptionEditor" class="form-label">
+            Editable Caption Canvas (Refine and customize freely)
+          </label>
+          <textarea id="studioCaptionEditor" class="form-control studio-textarea" rows="12">{{ studio_results.story_caption }}</textarea>
+        </div>
+
+        <div class="studio-editor-actions">
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button type="button" class="btn btn-secondary btn-sm copy-btn" data-copy-target="studioCaptionEditor">
+              📋 Copy Caption
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm copy-all-studio-btn" id="copyAllStudioBtn">
+              📋 Copy Caption + Hashtags
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm audio-play-btn" data-speak-target="studioCaptionEditor" title="Listen with Web Speech">
+              🔊 Listen Aloud
+            </button>
+          </div>
+
+          <!-- Save to Ideas Form -->
+          <form method="post" action="{% url 'save_generated_idea' %}" style="display: inline;">
+            {% csrf_token %}
+            <input type="hidden" name="title" value="{{ studio_results.topic|title }} (Studio Draft)">
+            <input type="hidden" name="niche" value="{{ form.niche.value }}">
+            <input type="hidden" name="audience" value="{{ form.audience.value }}">
+            <input type="hidden" name="content_format" value="reels">
+            <input type="hidden" name="hook" value="{{ studio_results.topic }}">
+            <input type="hidden" name="caption_draft" id="hiddenSaveCaption" value="{{ studio_results.story_caption }}">
+            <input type="hidden" name="hashtags" value="{{ studio_results.hashtags_json }}">
+            <button type="submit" class="btn btn-primary btn-sm">
+              ⭐ Save to My Ideas
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Right: Hashtags Optimizer & Strategy -->
+      <div class="studio-hashtags-card">
+        <div class="section-card-header">
+          <h2 class="card-section-title">Tiered Hashtag Strategy</h2>
+          <button type="button" class="btn btn-secondary btn-sm copy-btn" data-copy-target="studioHashtagsRaw">
+            Copy Tags
+          </button>
+        </div>
+
+        <p style="font-size: 0.8125rem; color: var(--color-slate-500); margin-bottom: 1rem;">
+          Curated combination of broad discoverability tags, niche topic tags, and creator community labels.
+        </p>
+
+        <!-- Tag pills -->
+        <div class="hashtag-pill-container" style="margin-bottom: 1.25rem;">
+          {% for tag in studio_results.hashtags %}
+            <span class="hashtag-pill">{{ tag }}</span>
+          {% endfor %}
+        </div>
+
+        <div class="form-group">
+          <label for="studioHashtagsRaw" class="form-label">Raw Hashtag String</label>
+          <textarea id="studioHashtagsRaw" class="form-control" rows="3" readonly>{{ studio_results.hashtags_string }}</textarea>
+        </div>
+
+        <div class="studio-guidance-box">
+          <h4>💡 Instagram Caption Best Practice</h4>
+          <ul style="padding-left: 1.25rem; font-size: 0.8125rem; color: var(--color-slate-600); line-height: 1.6;">
+            <li>Keep your first 1-2 lines punchy before the "...more" fold.</li>
+            <li>Use line breaks to improve readability on mobile screens.</li>
+            <li>5-8 targeted hashtags consistently outperform 30 spammy tags.</li>
+            <li>Always finish with a clear, single-action question or CTA.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="empty-state-box" style="margin-top: 1rem;">
+      <div class="empty-state-icon">✍️</div>
+      <h3 class="empty-state-title">Ready to draft your caption?</h3>
+      <p class="empty-state-text">
+        Enter your topic above and select your target audience. CreatorSpark will craft 3 structured caption templates and tiered hashtag suggestions.
+      </p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Content Planner & Schedule — CreatorSpark{% endblock %}
+
+{% block content %}
+<div class="container studio-page-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <span class="badge badge-primary">Editorial Pipeline</span>
+      <h1 class="page-title">Content Planner</h1>
+      <p class="page-desc">
+        Schedule your post pipeline, track production statuses, and stay consistent.
+      </p>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="{% url 'planner_create' %}" class="btn btn-primary">
+        + Schedule Post
+      </a>
+    </div>
+  </div>
+
+  <!-- Transparent Disclaimer Notice -->
+  <div class="planner-notice-banner">
+    <div style="display: flex; gap: 0.75rem; align-items: center;">
+      <span style="font-size: 1.25rem;">📌</span>
+      <span style="font-size: 0.875rem; color: var(--color-slate-700);">
+        <strong>Planning Tool:</strong> CreatorSpark is your private planning and creative workspace. It organizes your production schedule and does not automatically upload or publish posts to your Instagram account.
+      </span>
+    </div>
+  </div>
+
+  <!-- Status Filter Pills -->
+  <div class="planner-filter-strip">
+    <a href="{% url 'planner_list' %}?status=all" class="planner-filter-pill {% if current_status == 'all' %}active{% endif %}">
+      All Posts
+    </a>
+    <a href="{% url 'planner_list' %}?status=planned" class="planner-filter-pill {% if current_status == 'planned' %}active{% endif %}">
+      Scheduled
+    </a>
+    <a href="{% url 'planner_list' %}?status=in_progress" class="planner-filter-pill {% if current_status == 'in_progress' %}active{% endif %}">
+      Creating / Filming
+    </a>
+    <a href="{% url 'planner_list' %}?status=ready" class="planner-filter-pill {% if current_status == 'ready' %}active{% endif %}">
+      Ready to Post
+    </a>
+    <a href="{% url 'planner_list' %}?status=published" class="planner-filter-pill {% if current_status == 'published' %}active{% endif %}">
+      Published
+    </a>
+    <a href="{% url 'planner_list' %}?status=idea" class="planner-filter-pill {% if current_status == 'idea' %}active{% endif %}">
+      Draft Concepts
+    </a>
+  </div>
+
+  {% if entries %}
+    <div class="planner-sections-wrap">
+      <!-- Section: Overdue -->
+      {% if overdue_entries %}
+        <div class="planner-group-block">
+          <div class="planner-group-header overdue">
+            <span class="planner-group-indicator"></span>
+            <h2 class="planner-group-title">Overdue / Needs Attention ({{ overdue_entries|length }})</h2>
+          </div>
+          <div class="planner-cards-grid">
+            {% for entry in overdue_entries %}
+              {% include 'planner/_entry_card.html' with entry=entry %}
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Section: Today -->
+      {% if today_entries %}
+        <div class="planner-group-block">
+          <div class="planner-group-header today">
+            <span class="planner-group-indicator"></span>
+            <h2 class="planner-group-title">Today's Content ({{ today_entries|length }})</h2>
+          </div>
+          <div class="planner-cards-grid">
+            {% for entry in today_entries %}
+              {% include 'planner/_entry_card.html' with entry=entry %}
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Section: Upcoming -->
+      {% if upcoming_entries %}
+        <div class="planner-group-block">
+          <div class="planner-group-header upcoming">
+            <span class="planner-group-indicator"></span>
+            <h2 class="planner-group-title">Upcoming Schedule ({{ upcoming_entries|length }})</h2>
+          </div>
+          <div class="planner-cards-grid">
+            {% for entry in upcoming_entries %}
+              {% include 'planner/_entry_card.html' with entry=entry %}
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Section: Unscheduled / Backlog -->
+      {% if unscheduled_entries %}
+        <div class="planner-group-block">
+          <div class="planner-group-header unscheduled">
+            <span class="planner-group-indicator"></span>
+            <h2 class="planner-group-title">Unscheduled Queue ({{ unscheduled_entries|length }})</h2>
+          </div>
+          <div class="planner-cards-grid">
+            {% for entry in unscheduled_entries %}
+              {% include 'planner/_entry_card.html' with entry=entry %}
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  {% else %}
+    <div class="empty-state-box" style="margin-top: 2rem;">
+      <div class="empty-state-icon">📅</div>
+      <h3 class="empty-state-title">No scheduled posts found</h3>
+      <p class="empty-state-text">
+        {% if current_status != 'all' %}
+          No posts found with status "{{ current_status }}".
+        {% else %}
+          Your content planner is currently empty. Schedule a post or import one of your saved ideas.
+        {% endif %}
+      </p>
+      <div style="display: flex; gap: 0.75rem; justify-content: center; margin-top: 1rem;">
+        <a href="{% url 'planner_create' %}" class="btn btn-primary">
+          Schedule New Post
+        </a>
+        <a href="{% url 'saved_ideas_list' %}" class="btn btn-secondary">
+          Browse Saved Ideas
+        </a>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

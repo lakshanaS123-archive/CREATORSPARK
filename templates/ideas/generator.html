@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Content Idea Generator — CreatorSpark{% endblock %}
+
+{% block content %}
+<div class="container studio-page-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <span class="badge badge-primary">Rule-Based Creator Engine</span>
+      <h1 class="page-title">Content Idea Generator</h1>
+      <p class="page-desc">
+        Select your niche, format, and goals to generate structured post concepts with hooks, outlines, captions, and hashtags.
+      </p>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="{% url 'saved_ideas_list' %}" class="btn btn-secondary">
+        View Saved Ideas &rarr;
+      </a>
+    </div>
+  </div>
+
+  <!-- Audio Speech Controller Floating Bar (Web Speech API) -->
+  <div class="audio-controller-bar" id="audioGlobalBar" role="region" aria-label="Web Speech Audio Player">
+    <div class="audio-bar-left">
+      <span class="audio-pulse-indicator" id="audioPulseIndicator"></span>
+      <span class="audio-status-label" id="audioStatusText">Audio Player Ready (Web Speech API)</span>
+    </div>
+    <div class="audio-controls-wrap">
+      <select id="audioVoiceSelect" class="audio-voice-select" aria-label="Select Voice">
+        <option value="">Default Browser Voice</option>
+      </select>
+      <button type="button" class="btn btn-secondary btn-sm" id="audioPauseBtn" title="Pause Speech" disabled>
+        Pause
+      </button>
+      <button type="button" class="btn btn-secondary btn-sm" id="audioResumeBtn" title="Resume Speech" disabled>
+        Resume
+      </button>
+      <button type="button" class="btn btn-secondary btn-sm" id="audioStopBtn" title="Stop Speech" disabled>
+        Stop
+      </button>
+    </div>
+  </div>
+
+  <!-- Generator Form Card -->
+  <div class="generator-card">
+    <form method="post" action="{% url 'generator' %}" class="generator-form">
+      {% csrf_token %}
+
+      <div class="generator-grid-3">
+        <!-- Niche -->
+        <div class="form-group">
+          <label for="genNiche" class="form-label">Content Niche</label>
+          {{ form.niche }}
+        </div>
+
+        <!-- Format -->
+        <div class="form-group">
+          <label for="genFormat" class="form-label">Content Format</label>
+          {{ form.content_format }}
+        </div>
+
+        <!-- Audience -->
+        <div class="form-group">
+          <label for="genAudience" class="form-label">Target Audience</label>
+          {{ form.audience }}
+        </div>
+      </div>
+
+      <div class="generator-grid-3" style="margin-top: 1rem;">
+        <!-- Objective -->
+        <div class="form-group">
+          <label for="genObjective" class="form-label">Primary Goal</label>
+          {{ form.objective }}
+        </div>
+
+        <!-- Tone -->
+        <div class="form-group">
+          <label for="genTone" class="form-label">Delivery Tone</label>
+          {{ form.tone }}
+        </div>
+
+        <!-- Keywords -->
+        <div class="form-group">
+          <label for="{{ form.keywords.id_for_label }}" class="form-label">Topic or Specific Keyword</label>
+          {{ form.keywords }}
+        </div>
+      </div>
+
+      <!-- Optional custom inputs (toggled if custom niche/audience) -->
+      <div class="generator-grid-2" style="margin-top: 0.5rem;">
+        <div class="form-group">
+          <label for="{{ form.custom_niche.id_for_label }}" class="form-label">{{ form.custom_niche.label }}</label>
+          {{ form.custom_niche }}
+        </div>
+        <div class="form-group">
+          <label for="{{ form.custom_audience.id_for_label }}" class="form-label">{{ form.custom_audience.label }}</label>
+          {{ form.custom_audience }}
+        </div>
+      </div>
+
+      <div class="generator-actions-strip">
+        <div style="font-size: 0.8125rem; color: var(--color-slate-500);">
+          ⚡ Transparent rule engine &bull; Zero paid API costs &bull; Completely private
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+          </svg>
+          Generate Tailored Ideas
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Generated Ideas Results -->
+  {% if generated_ideas %}
+    <div class="generated-results-container" id="generatedResults">
+      <div class="results-header">
+        <h2 class="results-title">Generated Post Concepts ({{ generated_ideas|length }})</h2>
+        <p class="results-desc">
+          Inspect, listen, copy, or save any of the structured suggestions below directly into your library.
+        </p>
+      </div>
+
+      <div class="ideas-cards-grid">
+        {% for idea in generated_ideas %}
+          <div class="generator-idea-card" id="ideaCard{{ forloop.counter }}">
+            <div class="card-top-meta">
+              <div class="meta-badges-row">
+                <span class="badge badge-accent">{{ idea.content_format|upper }}</span>
+                <span class="badge badge-primary">{{ idea.niche|title }}</span>
+                <span class="badge badge-outline">{{ idea.estimated_difficulty }}</span>
+              </div>
+              <div class="card-audio-btn-wrap">
+                <button type="button" class="btn btn-secondary btn-sm audio-play-btn" data-speak-target="ideaHookText{{ forloop.counter }}" title="Listen to Hook">
+                  🔊 Listen Hook
+                </button>
+              </div>
+            </div>
+
+            <h3 class="idea-result-title">{{ idea.title }}</h3>
+
+            <!-- Opening Hook -->
+            <div class="hook-box-highlight">
+              <div class="hook-box-title">Opening Hook (First 3 Seconds)</div>
+              <p class="hook-box-content" id="ideaHookText{{ forloop.counter }}">{{ idea.hook }}</p>
+            </div>
+
+            <!-- Outline -->
+            <div class="outline-box-wrap">
+              <div class="section-subhead">Suggested Content Sequence</div>
+              <ol class="outline-ordered-list">
+                {% for step in idea.outline %}
+                  <li>{{ step }}</li>
+                {% endfor %}
+              </ol>
+            </div>
+
+            <!-- Caption Draft -->
+            <div class="caption-draft-wrap">
+              <div class="section-subhead">Caption Draft</div>
+              <div class="caption-draft-box" id="ideaCaptionText{{ forloop.counter }}">
+                {{ idea.caption_draft|linebreaksbr }}
+              </div>
+            </div>
+
+            <!-- Hashtags -->
+            <div class="hashtags-list-wrap">
+              <div class="section-subhead">Hashtags</div>
+              <div class="hashtag-pill-container" id="ideaHashtagsText{{ forloop.counter }}">
+                {% for tag in idea.hashtags %}
+                  <span class="hashtag-pill">{{ tag }}</span>
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- CTA -->
+            <div class="cta-box-wrap">
+              <span class="cta-label">Call to Action:</span>
+              <span class="cta-text">{{ idea.call_to_action }}</span>
+            </div>
+
+            <!-- Card Bottom Action Toolbar -->
+            <div class="idea-card-bottom-toolbar">
+              <div class="copy-buttons-group">
+                <button type="button" class="btn btn-secondary btn-sm copy-btn" data-copy-target="ideaHookText{{ forloop.counter }}">
+                  Copy Hook
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm copy-btn" data-copy-target="ideaCaptionText{{ forloop.counter }}">
+                  Copy Caption
+                </button>
+              </div>
+
+              <!-- Save Form -->
+              <form method="post" action="{% url 'save_generated_idea' %}" class="save-idea-form" style="display: inline;">
+                {% csrf_token %}
+                <input type="hidden" name="title" value="{{ idea.title }}">
+                <input type="hidden" name="niche" value="{{ idea.niche }}">
+                <input type="hidden" name="audience" value="{{ idea.audience }}">
+                <input type="hidden" name="content_format" value="{{ idea.content_format }}">
+                <input type="hidden" name="objective" value="{{ idea.objective }}">
+                <input type="hidden" name="tone" value="{{ idea.tone }}">
+                <input type="hidden" name="hook" value="{{ idea.hook }}">
+                <input type="hidden" name="caption_draft" value="{{ idea.caption_draft }}">
+                <input type="hidden" name="call_to_action" value="{{ idea.call_to_action }}">
+                <input type="hidden" name="estimated_difficulty" value="{{ idea.estimated_difficulty }}">
+                <!-- Outline and hashtags as clean JSON strings -->
+                <input type="hidden" name="outline" value="{{ idea.outline_json }}">
+                <input type="hidden" name="hashtags" value="{{ idea.hashtags_json }}">
+
+                <button type="submit" class="btn btn-primary btn-sm save-idea-btn">
+                  ⭐ Save to Library
+                </button>
+              </form>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% elif form_submitted %}
+    <div class="empty-state-box" style="margin-top: 2rem;">
+      <div class="empty-state-icon">🔍</div>
+      <h3 class="empty-state-title">No ideas generated for these parameters</h3>
+      <p class="empty-state-text">
+        Try broadening your topic keywords or selecting one of our core creator niches above.
+      </p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

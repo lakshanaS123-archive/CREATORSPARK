@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Saved Content Ideas — CreatorSpark{% endblock %}
+
+{% block content %}
+<div class="container studio-page-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div>
+      <span class="badge badge-primary">Private Creator Library</span>
+      <h1 class="page-title">Saved Content Ideas</h1>
+      <p class="page-desc">
+        All your saved hooks, outlines, and captions in one organized studio workspace.
+      </p>
+    </div>
+    <div style="display: flex; gap: 0.75rem;">
+      <a href="{% url 'generator' %}" class="btn btn-primary">
+        + Generate New Ideas
+      </a>
+    </div>
+  </div>
+
+  <!-- Search & Filter Bar -->
+  <div class="filter-search-card">
+    <form method="get" action="{% url 'saved_ideas_list' %}" class="filter-form">
+      <div class="search-input-wrap">
+        <input type="text" name="q" value="{{ search_query }}" class="form-control" placeholder="Search by title, hook, or keyword..." aria-label="Search ideas">
+      </div>
+
+      <div class="filter-selects-wrap">
+        <!-- Niche Filter -->
+        <select name="niche" class="form-select filter-select" aria-label="Filter by Niche">
+          <option value="">All Niches</option>
+          {% for n in user_niches %}
+            <option value="{{ n }}" {% if current_niche == n %}selected{% endif %}>{{ n|title }}</option>
+          {% endfor %}
+        </select>
+
+        <!-- Format Filter -->
+        <select name="format" class="form-select filter-select" aria-label="Filter by Format">
+          <option value="">All Formats</option>
+          <option value="reels" {% if current_format == 'reels' %}selected{% endif %}>Reels</option>
+          <option value="carousel" {% if current_format == 'carousel' %}selected{% endif %}>Carousels</option>
+          <option value="stories" {% if current_format == 'stories' %}selected{% endif %}>Stories</option>
+          <option value="static" {% if current_format == 'static' %}selected{% endif %}>Static Post</option>
+          <option value="educational_series" {% if current_format == 'educational_series' %}selected{% endif %}>Educational Series</option>
+        </select>
+
+        <!-- Favorites Toggle -->
+        <a href="{% if is_favorite_filter %}{% url 'saved_ideas_list' %}{% else %}{% url 'saved_ideas_list' %}?favorite=1{% endif %}"
+           class="btn {% if is_favorite_filter %}btn-primary{% else %}btn-secondary{% endif %} btn-sm">
+          ★ Favorites {% if is_favorite_filter %}Only{% endif %}
+        </a>
+
+        <button type="submit" class="btn btn-secondary btn-sm">Search</button>
+        {% if search_query or current_niche or current_format or is_favorite_filter %}
+          <a href="{% url 'saved_ideas_list' %}" class="btn btn-secondary btn-sm" style="color: var(--color-danger);">
+            Reset
+          </a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  <!-- Ideas Grid -->
+  {% if ideas %}
+    <div class="ideas-grid-layout">
+      {% for idea in ideas %}
+        <div class="saved-idea-card">
+          <div class="card-top-meta">
+            <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+              <span class="badge badge-accent badge-sm">{{ idea.get_content_format_display }}</span>
+              <span class="badge badge-outline badge-sm">{{ idea.niche|title }}</span>
+            </div>
+
+            <!-- Favorite Toggle Form -->
+            <form method="post" action="{% url 'idea_toggle_favorite' idea.id %}" style="display: inline;">
+              {% csrf_token %}
+              <button type="submit" class="favorite-star-btn {% if idea.is_favorite %}favorited{% endif %}" title="Toggle Favorite">
+                ★
+              </button>
+            </form>
+          </div>
+
+          <h2 class="saved-idea-title">
+            <a href="{% url 'idea_detail' idea.id %}">{{ idea.title }}</a>
+          </h2>
+
+          <div class="saved-idea-hook-snippet">
+            "{{ idea.hook|truncatechars:140 }}"
+          </div>
+
+          <div class="saved-idea-card-bottom">
+            <div class="saved-idea-date">
+              Saved {{ idea.created_at|date:"M d, Y" }}
+            </div>
+            <div class="saved-idea-card-actions">
+              <a href="{% url 'planner_create' %}?idea_id={{ idea.id }}" class="btn btn-secondary btn-sm" title="Schedule in Content Planner">
+                📅 Plan
+              </a>
+              <a href="{% url 'idea_detail' idea.id %}" class="btn btn-primary btn-sm">
+                Inspect &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state-box">
+      <div class="empty-state-icon">📂</div>
+      {% if search_query or current_niche or current_format or is_favorite_filter %}
+        <h3 class="empty-state-title">No matching ideas found</h3>
+        <p class="empty-state-text">
+          No saved ideas match your search criteria. Try resetting your filters.
+        </p>
+        <a href="{% url 'saved_ideas_list' %}" class="btn btn-secondary btn-sm">Reset Filters</a>
+      {% else %}
+        <h3 class="empty-state-title">Your saved ideas library is empty</h3>
+        <p class="empty-state-text">
+          You haven't saved any content ideas yet. Use the rule-based generator to brainstorm concepts for your niche!
+        </p>
+        <a href="{% url 'generator' %}" class="btn btn-primary">
+          Generate Content Ideas Now &rarr;
+        </a>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
